@@ -6,10 +6,9 @@ use App\Models\User;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
 
-class GoogleAuthController extends Controller
+class OAuthController extends Controller
 {
 	public function redirect(): RedirectResponse
 	{
@@ -28,11 +27,7 @@ class GoogleAuthController extends Controller
 
 			if ($findAlreadyExistedUser && !$findAlreadyExistedUser->google_id)
 			{
-				echo '<script language="javascript">';
-				echo 'alert("An account with this email already exists")';
-				echo '</script>';
-
-				echo redirect()->away(env('APP_FRONT_BASE_URL'));
+				return redirect()->away(env('APP_FRONT_BASE_URL'))->with('message', 'An account with this email already exists!');
 			}
 			elseif ($findUser)
 			{
@@ -45,7 +40,6 @@ class GoogleAuthController extends Controller
 				$newUser = User::create([
 					'name'      => $user->name,
 					'email'     => $user->email,
-					'password'  => Hash::make('googlepass'),
 					'google_id' => $user->id,
 				]);
 
