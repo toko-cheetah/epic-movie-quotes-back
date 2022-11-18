@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\LowercaseRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class RegisterRequest extends FormRequest
@@ -14,9 +15,9 @@ class RegisterRequest extends FormRequest
 	public function rules()
 	{
 		return [
-			'name'     => 'required|min:3|max:15|alpha_num|lowercase',
-			'email'    => 'required|email|unique:users,email',
-			'password' => 'required|min:8|max:15|alpha_num|lowercase|confirmed',
+			'name'     => ['required', 'min:3', 'max:15', 'alpha_num', new LowercaseRule],
+			'email'    => ['required', 'email', 'unique:users,email'],
+			'password' => ['required', 'min:8', 'max:15', 'alpha_num', new LowercaseRule, 'confirmed'],
 		];
 	}
 }
