@@ -27,13 +27,13 @@ class OAuthController extends Controller
 
 			if ($findAlreadyExistedUser && !$findAlreadyExistedUser->google_id)
 			{
-				return redirect()->away(env('APP_FRONT_BASE_URL'))->with('message', 'An account with this email already exists!');
+				return redirect()->away(env('APP_FRONTEND_BASE_URL'))->with('message', 'An account with this email already exists!');
 			}
 			elseif ($findUser)
 			{
 				Auth::login($findUser);
 
-				return redirect()->away(env('APP_FRONT_BASE_URL'));
+				return redirect()->away(env('APP_FRONTEND_BASE_URL'));
 			}
 			else
 			{
@@ -45,12 +45,12 @@ class OAuthController extends Controller
 
 				$newUser->markEmailAsVerified();
 
-				return redirect()->away(env('APP_FRONT_BASE_URL'));
+				return redirect()->away(env('APP_FRONTEND_BASE_URL'));
 			}
 		}
 		catch(Exception $e)
 		{
-			return redirect()->away(env('APP_FRONT_BASE_URL'))->withErrors($e->getMessage());
+			return redirect()->away(env('APP_FRONTEND_BASE_URL'))->withErrors($e->getMessage());
 		}
 	}
 }

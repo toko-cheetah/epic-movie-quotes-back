@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EmailVerificationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,3 +16,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::post('/register', [AuthController::class, 'register'])->name('register');
+
+Route::group(['controller' => EmailVerificationController::class], function () {
+	Route::get('/email/verify/{id}/{hash}', 'verify')->name('verification.verify');
+	Route::post('/email/verification-notification', 'resend')->name('verification.send');
+});
