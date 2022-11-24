@@ -4,6 +4,7 @@ namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
 
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -33,6 +34,10 @@ class AuthServiceProvider extends ServiceProvider
 
 			return (new MailMessage)
 				->action('Verify Email Address', $url);
+		});
+
+		ResetPassword::createUrlUsing(function ($user, string $token) {
+			return env('APP_FRONTEND_BASE_URL') . 'reset-password?token=' . $token . '&email=' . base64_encode($user->email);
 		});
 	}
 }
