@@ -20,6 +20,6 @@ class AuthController extends Controller
 
 		event(new Registered($user));
 
-		return response()->json('User successfuly registered!', 200);
+		return response()->json(status: 204);
 	}
 }
