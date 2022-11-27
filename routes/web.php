@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\OAuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,8 +14,3 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::view('/', 'welcome')->name('home');
-
-Route::controller(OAuthController::class)->group(function () {
-	Route::get('/auth/google/redirect', 'redirect')->name('auth.google_redirect');
-	Route::get('/auth/google/callback', 'callback')->name('auth.google_callback');
-});
