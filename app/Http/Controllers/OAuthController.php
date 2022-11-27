@@ -4,22 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Exception;
+use Firebase\JWT\JWT;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 
 class OAuthController extends Controller
 {
 	public function redirect(): RedirectResponse
 	{
-		return Socialite::driver('google')->redirect();
+		return Socialite::driver('google')->stateless()->redirect();
 	}
 
-	public function callback(): RedirectResponse
+	public function callback(): JsonResponse
 	{
 		try
 		{
-			$user = Socialite::driver('google')->user();
+			$user = Socialite::driver('google')->stateless()->user();
 
 			$findUser = User::where('google_id', $user->id)->first();
 
@@ -27,15 +28,9 @@ class OAuthController extends Controller
 
 			if ($findAlreadyExistedUser && !$findAlreadyExistedUser->google_id)
 			{
-				return redirect()->away(env('APP_FRONTEND_BASE_URL'))->with('message', 'An account with this email already exists!');
+				return response()->json('An account with this email already exists!', 400);
 			}
-			elseif ($findUser)
-			{
-				Auth::login($findUser);
-
-				return redirect()->away(env('APP_FRONTEND_BASE_URL'));
-			}
-			else
+			elseif (!$findUser)
 			{
 				$newUser = User::create([
 					'name'      => $user->name,
@@ -44,13 +39,22 @@ class OAuthController extends Controller
 				]);
 
 				$newUser->markEmailAsVerified();
-
-				return redirect()->away(env('APP_FRONTEND_BASE_URL'));
 			}
+
+			$payload = [
+				'exp' => now()->addSeconds(30)->timestamp,
+				'uid' => User::firstWhere('email', $user->email)->id,
+			];
+
+			$jwt = JWT::encode($payload, config('auth.jwt_secret'), 'HS256');
+
+			$cookie = cookie('access_token', $jwt, (60 * 24 * 365), '/', config('auth.front_end_top_level_domain'), true, true, false, 'Strict');
+
+			return response()->json('success', 200)->withCookie($cookie);
 		}
 		catch(Exception $e)
 		{
-			return redirect()->away(env('APP_FRONTEND_BASE_URL'))->withErrors($e->getMessage());
+			return response()->json($e->getMessage(), 400);
 		}
 	}
 }
