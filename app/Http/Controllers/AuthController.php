@@ -34,16 +34,17 @@ class AuthController extends Controller
 			'password' => $request->password,
 		], $request->remember))
 		{
+			$minutesJwt = $request->remember ? (60 * 24 * 30) : (60 * 24);
+			$minutesCookie = $request->remember ? (60 * 24 * 30) : null;
+
 			$payload = [
-				'exp' => now()->addSeconds(30)->timestamp,
+				'exp' => now()->addMinutes($minutesJwt)->timestamp,
 				'uid' => User::firstWhere($loginType, $request->name)->id,
 			];
 
 			$jwt = JWT::encode($payload, config('auth.jwt_secret'), 'HS256');
 
-			$minutes = $request->remember ? (60 * 24 * 365) : 30;
-
-			$cookie = cookie('access_token', $jwt, $minutes, '/', config('auth.front_end_top_level_domain'), true, true, false, 'Strict');
+			$cookie = cookie('access_token', $jwt, $minutesCookie, '/', config('auth.front_end_top_level_domain'), true, true, false, 'Strict');
 
 			return response()->json('success', 200)->withCookie($cookie);
 		}
@@ -56,6 +57,7 @@ class AuthController extends Controller
 			[
 				'message' => 'authenticated successfully',
 				'user'    => jwtUser(),
+				'avatar'  => asset('storage/' . jwtUser()->avatar),
 			],
 			200
 		);

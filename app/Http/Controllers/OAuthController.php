@@ -6,14 +6,13 @@ use App\Models\User;
 use Exception;
 use Firebase\JWT\JWT;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Laravel\Socialite\Facades\Socialite;
 
 class OAuthController extends Controller
 {
-	public function redirect(): RedirectResponse
+	public function redirect(): JsonResponse
 	{
-		return Socialite::driver('google')->stateless()->redirect();
+		return response()->json(Socialite::driver('google')->stateless()->redirect()->getTargetUrl(), 200);
 	}
 
 	public function callback(): JsonResponse
@@ -41,14 +40,16 @@ class OAuthController extends Controller
 				$newUser->markEmailAsVerified();
 			}
 
+			$minutes = 60 * 24 * 30;
+
 			$payload = [
-				'exp' => now()->addSeconds(30)->timestamp,
+				'exp' => now()->addMinutes($minutes)->timestamp,
 				'uid' => User::firstWhere('email', $user->email)->id,
 			];
 
 			$jwt = JWT::encode($payload, config('auth.jwt_secret'), 'HS256');
 
-			$cookie = cookie('access_token', $jwt, (60 * 24 * 365), '/', config('auth.front_end_top_level_domain'), true, true, false, 'Strict');
+			$cookie = cookie('access_token', $jwt, $minutes, '/', config('auth.front_end_top_level_domain'), true, true, false, 'Strict');
 
 			return response()->json('success', 200)->withCookie($cookie);
 		}

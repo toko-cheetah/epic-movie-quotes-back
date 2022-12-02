@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\OAuthController;
 use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -40,4 +41,8 @@ Route::controller(PasswordResetController::class)->group(function () {
 	Route::post('/forgot-password', 'email')->name('password.email');
 	Route::get('/reset-password/{token}', 'reset')->name('password.reset');
 	Route::post('/reset-password', 'update')->name('password.update');
+});
+
+Route::controller(ProfileController::class)->middleware('jwt.auth')->group(function () {
+	Route::post('/add-avatar', 'addAvatar')->name('add_avatar');
 });
