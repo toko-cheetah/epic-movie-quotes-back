@@ -57,6 +57,7 @@ class AuthController extends Controller
 			[
 				'message' => 'authenticated successfully',
 				'user'    => jwtUser(),
+				'avatar'  => asset('storage/' . jwtUser()->avatar),
 			],
 			200
 		);
