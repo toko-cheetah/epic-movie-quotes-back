@@ -46,4 +46,5 @@ Route::controller(PasswordResetController::class)->group(function () {
 Route::controller(ProfileController::class)->middleware('jwt.auth')->group(function () {
 	Route::post('/avatar', 'addAvatar')->name('add_avatar');
 	Route::put('/edit/name', 'editName')->name('edit.name');
+	Route::put('/edit/password', 'editPassword')->name('edit.password');
 });
