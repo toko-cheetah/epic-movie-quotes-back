@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Models\SecondaryEmail;
 use App\Models\User;
 use Firebase\JWT\JWT;
 use Illuminate\Auth\Events\Registered;
@@ -27,10 +28,21 @@ class AuthController extends Controller
 
 	public function login(LoginRequest $request): JsonResponse
 	{
-		$loginType = filter_var($request->name, FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
+		$secondaryEmail = SecondaryEmail::firstWhere('secondary_email', $request->name);
+
+		$loginType = $secondaryEmail ? 'id' : (filter_var($request->name, FILTER_VALIDATE_EMAIL) ? 'email' : 'name');
+
+		$nameValue = $secondaryEmail ? $secondaryEmail->user_id : $request->name;
+
+		$user = User::firstWhere($loginType, $request->name);
+
+		if ($secondaryEmail && !$secondaryEmail->email_verified_at || $user && !$user->email_verified_at)
+		{
+			return response()->json('This email is not verified!', 400);
+		}
 
 		if (auth()->attempt([
-			$loginType => $request->name,
+			$loginType => $nameValue,
 			'password' => $request->password,
 		], $request->remember))
 		{
@@ -39,7 +51,7 @@ class AuthController extends Controller
 
 			$payload = [
 				'exp' => now()->addMinutes($minutesJwt)->timestamp,
-				'uid' => User::firstWhere($loginType, $request->name)->id,
+				'uid' => User::firstWhere($loginType, $nameValue)->id,
 			];
 
 			$jwt = JWT::encode($payload, config('auth.jwt_secret'), 'HS256');
