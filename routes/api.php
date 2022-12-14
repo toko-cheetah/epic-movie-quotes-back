@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EmailVerificationController;
+use App\Http\Controllers\Admin\MovieController;
 use App\Http\Controllers\OAuthController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ProfileController;
@@ -57,5 +58,13 @@ Route::middleware('jwt.auth')->group(function () {
 		Route::get('/secondary-email/verify/{id}', 'verify')->name('secondary_emails.verify');
 		Route::get('/secondary-email/primary/{email}', 'makePrimary')->name('secondary_emails.make_primary');
 		Route::delete('/secondary-emails/{email}', 'delete')->name('secondary_emails.delete');
+	});
+
+	Route::controller(MovieController::class)->group(function () {
+		Route::get('/movies', 'index')->name('movies.index');
+		Route::get('/movies/{movie}', 'get')->name('movies.get');
+		Route::post('/movies', 'store')->name('movies.store');
+		Route::put('/movies/{movie}', 'update')->name('movies.update');
+		Route::delete('/movies/{movie}', 'destroy')->name('movies.destroy');
 	});
 });

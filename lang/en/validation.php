@@ -159,6 +159,10 @@ return [
 
 	'lowercase' => 'The :attribute must be lowercase.',
 
+	'alpha_num_space' => 'The :attribute must only contain Latin letters, numbers, and spaces.',
+
+	'geo_num_space' => 'The :attribute must only contain Georgian letters, numbers, and spaces.',
+
 	/*
 	|--------------------------------------------------------------------------
 	| Custom Validation Attributes
