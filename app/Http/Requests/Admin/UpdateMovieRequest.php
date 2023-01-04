@@ -24,7 +24,6 @@ class UpdateMovieRequest extends FormRequest
 			'release_year'            => ['required', 'integer', 'between:1800,2099'],
 			'description_en'          => ['required'],
 			'description_ka'          => ['required'],
-			'poster'                  => ['image'],
 		];
 	}
 }

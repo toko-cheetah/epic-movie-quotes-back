@@ -60,7 +60,10 @@ class MovieController extends Controller
 
 		if ($request->file('poster'))
 		{
-			Storage::delete($movie->poster);
+			if ($movie->poster)
+			{
+				Storage::delete($movie->poster);
+			}
 			$movie->poster = $request->file('poster')->storePublicly('posters');
 		}
 		$movie->save();
